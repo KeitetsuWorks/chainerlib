@@ -29,12 +29,16 @@ class VOCFormatDetectionDataset(chainer.dataset.DatasetMixin):
         img_dir,
         classes,
         id_list_file_path=None,
+        min_img_size=None,
+        max_img_size=None,
         use_difficult=False,
         return_difficult=False,
     ):
         self.anno_dir = anno_dir
         self.img_dir = img_dir
         self.classes = classes
+        self.min_img_size = min_img_size
+        self.max_img_size = max_img_size
         self.use_difficult = use_difficult
         self.return_difficult = return_difficult
 
@@ -147,7 +151,6 @@ class VOCFormatDetectionDataset(chainer.dataset.DatasetMixin):
             # 対象クラスであるかを検証
             if (not (name in self.classes)):
                 continue
-            labels.append(self.classes.index(name))
 
             bbox = obj.find('bndbox')
             # The top-left pixel in the image has coordinates (1,1)
@@ -155,7 +158,21 @@ class VOCFormatDetectionDataset(chainer.dataset.DatasetMixin):
             ymin = int(bbox.find('ymin').text) - 1
             xmax = int(bbox.find('xmax').text) - 1
             ymax = int(bbox.find('ymax').text) - 1
+
+            # オブジェクトサイズ制限
+            if self.min_img_size:
+                dh = ymax - ymin
+                dw = xmax - xmin
+                if ((self.min_img_size[0] > dw) and (self.min_img_size[1] > dh)):
+                    continue
+            if self.max_img_size:
+                dh = ymax - ymin
+                dw = xmax - xmin
+                if ((self.max_img_size[0] < dw) and (self.max_img_size[1] < dh)):
+                    continue
+
             bboxes.append([ymin, xmin, ymax, xmax])
+            labels.append(self.classes.index(name))
 
             # difficultフラグを取得
             difficult_flags.append(int(obj.find('difficult').text))
