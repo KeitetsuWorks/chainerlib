@@ -12,4 +12,5 @@
 
 
 from .utils import load_label_file
+from .utils import load_label_conversion_table_file
 from .voc_format_detection_dataset import VOCFormatDetectionDataset

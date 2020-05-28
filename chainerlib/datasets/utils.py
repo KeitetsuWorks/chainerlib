@@ -11,6 +11,7 @@
 ##
 
 
+import json
 import pandas as pd
 
 
@@ -30,3 +31,10 @@ def load_label_file(label_file_path):
     print("number of classes: %d" % (len(classes)))
     
     return classes
+
+def load_label_conversion_table_file(label_conversion_table_file_path):
+    print("loading label conversion table file...: %s" % (label_conversion_table_file_path))
+    with open(label_conversion_table_file_path, mode='rt') as f:
+        label_conversion_table = json.load(f)
+
+    return label_conversion_table

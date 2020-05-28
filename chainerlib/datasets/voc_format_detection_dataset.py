@@ -28,6 +28,7 @@ class VOCFormatDetectionDataset(chainer.dataset.DatasetMixin):
         anno_dir,
         img_dir,
         classes,
+        classes_conversion_table=None,
         id_list_file_path=None,
         min_img_size=None,
         max_img_size=None,
@@ -37,6 +38,7 @@ class VOCFormatDetectionDataset(chainer.dataset.DatasetMixin):
         self.anno_dir = anno_dir
         self.img_dir = img_dir
         self.classes = classes
+        self.classes_conversion_table = classes_conversion_table
         self.min_img_size = min_img_size
         self.max_img_size = max_img_size
         self.use_difficult = use_difficult
@@ -148,6 +150,12 @@ class VOCFormatDetectionDataset(chainer.dataset.DatasetMixin):
 
             # クラス名を小文字変換して空白削除
             name = obj.find('name').text.lower().strip()
+
+            # クラス名を置換
+            if self.classes_conversion_table:
+                if (name in self.classes_conversion_table):
+                    name = self.classes_conversion_table[name]
+
             # 対象クラスであるかを検証
             if (not (name in self.classes)):
                 continue
